@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+set -e
+
+# utils
+
+function ltrim()
+{
+    if [[ "$1" =~ ^[[:space:]]+ ]]; then
+        val="${1:${#BASH_REMATCH[0]}}"
+    else
+        val="$1"
+    fi
+}
+
+function rtrim()
+{
+    if [[ "$1" =~ [[:space:]]+$ ]]; then
+        val="${1:0:${#1}-${#BASH_REMATCH[0]}}"
+    else
+        val="$1"
+    fi
+}
+
+function trim()
+{
+    ltrim "$1"
+    rtrim "$val"
+}
+
+function mfcb()
+{
+    # one before last arg: current index
+    # last arg: current value
+    "$1" "$4"
+    eval "$2[$3]=\$val;"
+}
+
+function str_split()
+{
+    readarray -c 1 -C "mfcb trim arr" -t -d ${2:-","} <<< "${1}${2:-","}"
+    unset arr[-1]
+}
+
+
+# prepare variables
+
+WAIT_HOSTS="$WAIT_HOSTS"
+WAIT_PATHS="$WAIT_PATHS"
+WAIT_TIMEOUT="${WAIT_TIMEOUT:-30}"
+WAIT_TCP_CONNECTION_TIMEOUT="${WAIT_TCP_CONNECTION_TIMEOUT:-1}"
+WAIT_INTERVAL="${WAIT_INTERVAL:-3}"
+
+str_split "$WAIT_HOSTS"
+hosts=(${arr[@]})
+
+str_split "$WAIT_PATHS"
+paths=(${arr[@]})
+
+time=0
+
+# functions
+
+function on_timeout()
+{
+    echo "Timeout!"
+    exit 1
+}
+
+function wait_for_host()
+{
+    str_split "$1" ":"
+    until nc -z -w "$WAIT_TCP_CONNECTION_TIMEOUT" "${arr[0]}" "${arr[1]}"; do
+        echo "Host $1 still not available. ($time)"
+        if (( $time > $WAIT_TIMEOUT )); then on_timeout; fi
+        sleep $WAIT_INTERVAL
+        time=$(( $time + $WAIT_INTERVAL ))
+    done
+}
+
+function wait_for_path()
+{
+    until [[ -a $1 ]]; do
+        echo "Path $1 still not available. ($time)"
+        if (( $time > $WAIT_TIMEOUT )); then on_timeout; fi
+        sleep $WAIT_INTERVAL
+        time=$(( $time + $WAIT_INTERVAL ))
+    done
+}
+
+# wait for hosts
+
+echo "Starting to wait for hosts ${hosts[@]}..."
+
+time=0 # reset timer
+
+for host in "${hosts[@]}"; do
+    wait_for_host $host
+    echo "Host $host is available."
+done
+
+echo "All hosts are available."
+
+# wait for paths
+
+echo "Starting to wait for paths ${paths[@]}..."
+
+time=0 # reset timer
+
+for path in "${paths[@]}"; do
+    wait_for_path $path
+    echo "Path $path is available."
+done
+
+echo "All paths are available."
+
+echo "All done!"
