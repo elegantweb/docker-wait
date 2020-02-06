@@ -70,8 +70,8 @@ function wait_for_host()
 {
     str_split "$1" ":"
     until nc -z -w "$WAIT_TCP_CONNECTION_TIMEOUT" "${arr[0]}" "${arr[1]}"; do
-        echo "Host $1 still not available. ($time)"
         if (( $time > $WAIT_TIMEOUT )); then on_timeout; fi
+        echo "Host $1 still not available. ($time)"
         sleep $WAIT_INTERVAL
         time=$(( $time + $WAIT_INTERVAL ))
     done
@@ -80,8 +80,8 @@ function wait_for_host()
 function wait_for_path()
 {
     until [[ -a $1 ]]; do
-        echo "Path $1 still not available. ($time)"
         if (( $time > $WAIT_TIMEOUT )); then on_timeout; fi
+        echo "Path $1 still not available. ($time)"
         sleep $WAIT_INTERVAL
         time=$(( $time + $WAIT_INTERVAL ))
     done
