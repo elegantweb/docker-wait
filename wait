@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-# utils
+# Utils
 
 function ltrim()
 {
@@ -42,7 +42,7 @@ function str_split()
 }
 
 
-# prepare variables
+# Env Variables
 
 WAIT_HOSTS="$WAIT_HOSTS"
 WAIT_PATHS="$WAIT_PATHS"
@@ -52,6 +52,8 @@ WAIT_INTERVAL="${WAIT_INTERVAL:-3}"
 WAIT_BEFORE="${WAIT_BEFORE:-0}"
 WAIT_AFTER="${WAIT_BEFORE:-0}"
 
+# Global Variables
+
 str_split "$WAIT_HOSTS"
 hosts=(${arr[@]})
 
@@ -60,7 +62,7 @@ paths=(${arr[@]})
 
 time=0
 
-# functions
+# Functions
 
 function on_timeout()
 {
@@ -89,11 +91,14 @@ function wait_for_path()
     done
 }
 
-# wait for hosts
+# Wait before
 
-echo "Waiting before..."
+if [[ "0" != $WAIT_BEFORE ]]; then
+    echo "Waiting before..."
+    sleep $WAIT_BEFORE
+fi
 
-sleep $WAIT_BEFORE
+# Wait for hosts
 
 echo "Starting to wait for hosts ${hosts[@]}..."
 
@@ -119,8 +124,11 @@ done
 
 echo "All paths are available."
 
-echo "Waiting after..."
+# Wait after
 
-sleep $WAIT_AFTER
+if [[ "0" != $WAIT_AFTER ]]; then
+    echo "Waiting after..."
+    sleep $WAIT_AFTER
+fi
 
 echo "All done!"
