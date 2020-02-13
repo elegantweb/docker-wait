@@ -94,7 +94,7 @@ function wait_for_path()
 # Wait before
 
 if [[ "0" != $WAIT_BEFORE ]]; then
-    echo "Waiting before..."
+    echo "Waiting $WAIT_BEFORE second(s) before..."
     sleep $WAIT_BEFORE
 fi
 
@@ -127,7 +127,7 @@ echo "All paths are available."
 # Wait after
 
 if [[ "0" != $WAIT_AFTER ]]; then
-    echo "Waiting after..."
+    echo "Waiting $WAIT_AFTER second(s) after..."
     sleep $WAIT_AFTER
 fi
 
