@@ -49,6 +49,8 @@ WAIT_PATHS="$WAIT_PATHS"
 WAIT_TIMEOUT="${WAIT_TIMEOUT:-30}"
 WAIT_TCP_CONNECTION_TIMEOUT="${WAIT_TCP_CONNECTION_TIMEOUT:-1}"
 WAIT_INTERVAL="${WAIT_INTERVAL:-3}"
+WAIT_BEFORE="${WAIT_BEFORE:0}"
+WAIT_AFTER="${WAIT_BEFORE:0}"
 
 str_split "$WAIT_HOSTS"
 hosts=(${arr[@]})
@@ -89,6 +91,10 @@ function wait_for_path()
 
 # wait for hosts
 
+echo "Waiting before..."
+
+sleep $WAIT_BEFORE
+
 echo "Starting to wait for hosts ${hosts[@]}..."
 
 time=0 # reset timer
@@ -112,5 +118,9 @@ for path in "${paths[@]}"; do
 done
 
 echo "All paths are available."
+
+echo "Waiting after..."
+
+sleep $WAIT_AFTER
 
 echo "All done!"
