@@ -29,8 +29,9 @@ function trim()
 
 function mfcb()
 {
-    # one before last arg: current index
-    # last arg: current value
+    # argument order:
+    # argument one before last: current index (here it is $3)
+    # argument last: current value (here it is $4)
     "$1" "$4"
     eval "$2[$3]=\$val;"
 }
