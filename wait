@@ -42,7 +42,6 @@ function str_split()
     unset arr[-1]
 }
 
-
 # Env Variables
 
 WAIT_HOSTS="$WAIT_HOSTS"
